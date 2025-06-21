@@ -194,6 +194,7 @@ create table OWNERSHIPS
 create table TRACKINGS
 (edition_id integer not null references EDITIONS(id),
  user_id integer not null references USERS(id),
+ status enum('to-read', 'currently-reading', 'read') not null,
  progress smallint default 0,
  rating smallint check (0.0 <= rating and rating <= 5.0), -- NOTA DE 0 A 5
  review varchar(18800),
