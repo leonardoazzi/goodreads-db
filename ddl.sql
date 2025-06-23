@@ -1,3 +1,6 @@
+DROP SCHEMA IF EXISTS public CASCADE;
+CREATE SCHEMA public;
+
 -- Entidade: Series
 -- Descrição: Uma série de livros contendo uma ou mais obras primárias explicitamente
 -- ordenadas e, opcionalmente, outras obras sem uma posição específica dentro da série.
@@ -46,14 +49,14 @@ CREATE TABLE authors (
 -- Descrição: Uma edição ou instância de uma obra. Usado na maior parte das listagens para
 -- representar uma obra, pois a mesma pode ter diversas variações com diferenças
 -- significativas.
--- ===========================================================================================
+-- ============================================================================
 -- Publication
 -- Relacionamento: Publication
 -- Descrição: Atribui uma edição à obra a qual ela corresponde.
 -- Entidades participantes:
 -- ●​ Work: (1, 1) é instância de
 -- ●​ Edition: (1, n) possui
--- ===========================================================================================
+-- ============================================================================
 CREATE TABLE editions (
 	id SERIAL PRIMARY KEY,
 	title VARCHAR(150) NOT NULL,
@@ -107,14 +110,14 @@ CREATE TABLE lists (
 -- Descrição: Uma listagem de um livro em uma lista. Representa uma obra específica
 -- dentro de uma lista, podendo conter informações adicionais como a posição na lista e
 -- a data de adição.
--- ===========================================================================================
+-- ============================================================================
 -- Entry
 -- Relacionamento: Entry
 -- Descrição: Atribui uma listagem de um livro à lista na qual ela foi feita.
 -- Entidades participantes:
 -- ●​ ListEntry: (0, n) possui
 -- ●​ List: (1, 1) faz parte de
--- ============================================================================================
+-- ============================================================================
 CREATE TABLE list_entries (
 	id SERIAL PRIMARY KEY,
 	vote_count INTEGER NOT NULL CHECK (vote_count >= 0),
@@ -135,14 +138,14 @@ CREATE TABLE shelves (
 -- Entidade: Quote
 -- Descrição: Uma citação. Frase ou texto atribuída a um autor por um usuário. Pode ser
 -- "curtida" por outros usuários.
--- ===========================================================================================
+-- ============================================================================
 -- Attribution
 -- Relacionamento: Attribution
 -- Descrição: Atribui a autoria de uma citação a um autor.
 -- Entidades participantes:
 -- ●​ Author: (1, 1) é atribuído a
 -- ●​ Quote: (0, n) é dono de
--- ===========================================================================================
+-- ============================================================================
 CREATE TABLE quotes (
 	id SERIAL PRIMARY KEY,
 	quote VARCHAR(500) NOT NULL,
@@ -152,14 +155,14 @@ CREATE TABLE quotes (
 
 -- Entidade: Friendship
 -- Descrição: Uma amizade entre dois usuários.
--- ===========================================================================================
+-- ============================================================================
 -- Friendship
 -- Relacionamento: Friendship
 -- Descrição: Atribui uma amizade entre dois usuários.
 -- Entidades participantes:	
 -- ●​ User: (0, n) tem como amigo
 -- ●​ User: (0, n) é amigo de
--- ===========================================================================================
+-- ============================================================================
 CREATE TABLE friendships (
 	user_id INTEGER NOT NULL REFERENCES users(id),
 	friend_id INTEGER NOT NULL REFERENCES users(id),
@@ -244,11 +247,11 @@ CREATE TABLE trackings (
 	user_id INTEGER NOT NULL REFERENCES users(id),
 	status tracking_status NOT NULL,
 	progress SMALLINT DEFAULT 0,
+	review VARCHAR(18800),
+	reading_period DATERANGE,
 	rating SMALLINT CHECK (
 		rating BETWEEN 1 AND 5
 	),
-	review VARCHAR(18800),
-	reading_period DATERANGE,
 	PRIMARY KEY (edition_id, user_id)
 );
 
@@ -296,7 +299,7 @@ CREATE TABLE moderations (
 -- Entidades participantes:
 -- ● Edition: (0, n) está lendo
 -- ● Group: (0, n) está sendo lido por
-CREATE TABLE currently_readings (
+CREATE TABLE currently - readings (
 	edition_id INTEGER NOT NULL REFERENCES editions(id),
 	group_id INTEGER NOT NULL REFERENCES groups(id),
 	start_date DATE,

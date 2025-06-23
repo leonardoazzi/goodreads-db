@@ -1,8 +1,8 @@
--- ===========================================================================================
+-- ============================================================================
 -- 2.a) VISÃO
--- ===========================================================================================
+-- ============================================================================
 
--- Visão: book_details - Combina informações de obras, edições, autores e gêneros
+-- Visão: book_details - Contém todas as informações de um livro, combinando detalhes da obra, edições, autores e gêneros.
 CREATE VIEW book_details AS
 SELECT w.id as work_id,
 	w.title as work_title,
@@ -31,12 +31,11 @@ FROM works w
 	LEFT JOIN categorizations c ON w.id = c.work_id
 	LEFT JOIN genres g ON c.genre_id = g.id;
 
--- ===========================================================================================
+-- ============================================================================
 -- 2.b) CONSULTAS
--- ===========================================================================================
+-- ============================================================================
 
--- Consulta 1: Listar todos os livros com suas informações completas usando a visão
--- Envolve: book_details (visão)
+-- Consulta 1: Todos os livros cadastrados, com os detalhes necessários para exibição
 SELECT work_title,
 	edition_title,
 	author_name,
@@ -49,9 +48,7 @@ WHERE work_rating >= 4.5
 ORDER BY work_rating DESC,
 	work_title;
 
--- Consulta 2: Encontrar usuários que leram livros de todos os gêneros disponíveis
--- Envolve: users, trackings, editions, works, categorizations, genres
--- Relacionamentos: Tracking, Publication, Categorization
+-- Consulta 2: Usuários que leram livros de todos os gêneros disponíveis
 SELECT DISTINCT u.first_name,
 	u.last_name,
 	u.email
@@ -71,9 +68,7 @@ WHERE NOT EXISTS (
 			)
 	);
 
--- Consulta 3: Estatísticas de leitura por gênero com GROUP BY e HAVING
--- Envolve: trackings, editions, works, categorizations, genres
--- Relacionamentos: Tracking, Publication, Categorization
+-- Consulta 3: Estatísticas de leitura por gênero
 SELECT g.label as genre,
 	COUNT(DISTINCT t.user_id) as total_readers,
 	AVG(t.rating) as avg_rating,
@@ -90,8 +85,6 @@ HAVING COUNT(DISTINCT t.user_id) >= 1
 ORDER BY total_readers DESC;
 
 -- Consulta 4: Autores mais populares baseado em curtidas de citações
--- Envolve: likes, quotes, authors
--- Relacionamentos: Like, Attribution
 SELECT a.name as author_name,
 	COUNT(l.quote_id) as total_likes,
 	COUNT(DISTINCT l.user_id) as unique_likers
@@ -102,9 +95,7 @@ GROUP BY a.id,
 	a.name
 ORDER BY total_likes DESC;
 
--- Consulta 5: Listar séries com informações de posicionamento usando a visão (usa a visão)
--- Envolve: series, positionings, book_details (visão)
--- Relacionamentos: Positioning
+-- Consulta 5: Séries e suas obras com informações de posicionamento
 SELECT s.title as series_title,
 	bd.work_title,
 	bd.author_name,
@@ -116,14 +107,12 @@ FROM series s
 ORDER BY s.title,
 	p.position;
 
--- Consulta 6: Usuários que completaram seus desafios de leitura anual (REPLACED)
--- Envolve: users, trackings, editions, works
--- Relacionamentos: Tracking, Publication
+-- Consulta 6: Usuários que completaram o desafio de leitura anual (leram 12 livros em um ano)
 SELECT u.first_name,
 	u.last_name,
 	EXTRACT(
 		YEAR
-		FROM t.finish_date
+		FROM UPPER(t.reading_period)
 	) as reading_year,
 	COUNT(*) as books_read,
 	AVG(t.rating) as avg_rating,
@@ -132,21 +121,19 @@ FROM users u
 	JOIN trackings t ON u.id = t.user_id
 	JOIN editions e ON t.edition_id = e.id
 WHERE t.status = 'read'
-	AND t.finish_date IS NOT NULL
+	AND t.reading_period IS NOT NULL
 GROUP BY u.id,
 	u.first_name,
 	u.last_name,
 	EXTRACT(
 		YEAR
-		FROM t.finish_date
+		FROM UPPER(t.reading_period)
 	)
 HAVING COUNT(*) >= 12
 ORDER BY reading_year DESC,
 	books_read DESC;
 
--- Consulta 7: Recomendações de livros baseadas em gêneros favoritos dos usuários
--- Envolve: users, trackings, editions, works, categorizations, genres
--- Relacionamentos: Tracking, Publication, Categorization
+-- Consulta 7: Recomendação de livros baseada em gêneros favoritos dos usuários
 SELECT u.first_name,
 	u.last_name,
 	g.label as favorite_genre,
@@ -185,37 +172,26 @@ ORDER BY u.first_name,
 	g.label,
 	w.mean_rating DESC;
 
--- Consulta 8: Atividade de leitura dos amigos de um usuário
--- Envolve: users, friendships, trackings, editions, works
--- Relacionamentos: Friendship, Tracking, Publication
+-- Consulta 8: Livros lidos recentemente pelos usuários e suas avaliações
 SELECT u.first_name,
 	u.last_name,
-	friend.first_name as friend_name,
-	friend.last_name as friend_last_name,
-	w.title as book_title,
-	t.status as reading_status,
+	bd.work_title as book_title,
+	bd.author_name,
 	t.rating,
-	t.finish_date
-FROM users u
-	JOIN friendships f ON u.id = f.user_id
-	JOIN users friend ON f.friend_id = friend.id
-	JOIN trackings t ON friend.id = t.user_id
-	JOIN editions e ON t.edition_id = e.id
-	JOIN works w ON e.work_id = w.id
-WHERE t.finish_date >= CURRENT_DATE - INTERVAL '30 days'
-	OR t.status = 'currently_reading'
-ORDER BY u.first_name,
-	friend.first_name,
-	t.finish_date DESC;
+	t.review,
+	UPPER(t.reading_period) as finish_date
+FROM trackings t
+	JOIN users u ON t.user_id = u.id
+	JOIN book_details bd ON t.edition_id = bd.edition_id
+WHERE t.status = 'read'
+	AND t.reading_period IS NOT NULL
+ORDER BY UPPER(t.reading_period) DESC;
 
--- Consulta 9: Análise de progresso de leitura por formato de livro
--- Envolve: trackings, editions, users
--- Relacionamentos: Tracking, Publication
+-- Consulta 9: Progresso de leitura por formato de livro
 SELECT e.format,
 	COUNT(DISTINCT t.user_id) as unique_readers,
 	COUNT(*) as total_trackings,
-	AVG(t.progress) as avg_progress,
-	COUNT(t.id) as total_entries
+	AVG(t.progress) as avg_progress
 FROM trackings t
 	JOIN editions e ON t.edition_id = e.id
 	JOIN users u ON t.user_id = u.id
@@ -223,18 +199,16 @@ GROUP BY e.format
 ORDER BY total_trackings DESC;
 
 -- Consulta 10: Estatísticas de leitura detalhadas por usuário
--- Envolve: users, trackings, editions, works, categorizations, genres
--- Relacionamentos: Tracking, Publication, Categorization
 SELECT u.first_name,
 	u.last_name,
-	COUNT(DISTINCT t.id) as total_books_read,
+	COUNT(DISTINCT t.edition_id) as total_books_read,
 	AVG(t.rating) as avg_rating,
 	SUM(e.page_count) as total_pages_read,
 	COUNT(DISTINCT g.id) as genres_explored,
-	MAX(t.finish_date) as last_book_finished,
+	MAX(UPPER(t.reading_period)) as last_book_finished,
 	COUNT(
 		CASE
-			WHEN t.status = 'currently_reading' THEN 1
+			WHEN t.status = 'currently-reading' THEN 1
 		END
 	) as currently_reading
 FROM users u
@@ -243,9 +217,9 @@ FROM users u
 	LEFT JOIN works w ON e.work_id = w.id
 	LEFT JOIN categorizations c ON w.id = c.work_id
 	LEFT JOIN genres g ON c.genre_id = g.id
-WHERE t.status IN ('read', 'currently_reading')
+WHERE t.status IN ('read', 'currently-reading')
 GROUP BY u.id,
 	u.first_name,
 	u.last_name
-HAVING COUNT(DISTINCT t.id) >= 1
+HAVING COUNT(DISTINCT t.edition_id) >= 1
 ORDER BY total_books_read DESC;
