@@ -1,3 +1,8 @@
+---------------------------------------------------------------
+--	Bruno Samuel Ardenghi Gonçalves ― 550452
+--	Leonardo Azzi Martins ― 323721
+---------------------------------------------------------------
+
 DELETE FROM likes;
 DELETE FROM trackings;
 DELETE FROM storages;

@@ -1,3 +1,8 @@
+---------------------------------------------------------------
+--	Bruno Samuel Ardenghi Gonçalves ― 550452
+--	Leonardo Azzi Martins ― 323721
+---------------------------------------------------------------
+
 -- Visão: book_details - Contém todas as informações de um livro, combinando detalhes da obra, edições, autores e gêneros.
 CREATE VIEW book_details AS
 SELECT w.id as work_id,

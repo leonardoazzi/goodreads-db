@@ -1,3 +1,8 @@
+---------------------------------------------------------------
+--	Bruno Samuel Ardenghi Gonçalves ― 550452
+--	Leonardo Azzi Martins ― 323721
+---------------------------------------------------------------
+
 -- Series (Entidade)
 -- Uma série de livros contendo uma ou mais obras primárias explicitamente ordenadas e, opcionalmente, outras obras sem uma posição específica dentro da série.
 CREATE TABLE series (
