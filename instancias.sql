@@ -19,6 +19,7 @@ DELETE FROM works;
 DELETE FROM series;
 DELETE FROM authors;
 DELETE FROM genres;
+DELETE FROM users;
 
 INSERT INTO genres (id, slug, label, description) VALUES
     (1, 'fantasy', 'Fantasy', 'Livros de fantasia e magia'),
@@ -59,17 +60,17 @@ INSERT INTO editions (id, title, page_count, format, publication_date, publisher
     (1, 'O Hobbit - Edição Ilustrada', 366, 'Hardcover', '2012-09-27', 'HarperCollins', 'Portuguese', 'https://example.com/hobbit.jpg', 'A história de Bilbo Bolseiro', '9780007487301', 'B008HZ6KXG', 1),
     (2, 'O Hobbit - Edição de Bolso', 366, 'Paperback', '2013-03-14', 'HarperCollins', 'Portuguese', 'https://example.com/hobbit-pb.jpg', 'A história de Bilbo Bolseiro', '9780007487318', 'B008HZ6KXH', 1),
     (3, 'A Sociedade do Anel', 576, 'Hardcover', '2014-06-19', 'HarperCollins', 'Portuguese', 'https://example.com/fellowship.jpg', 'Primeiro volume da trilogia', '9780007487325', 'B008HZ6KXI', 2),
-    (4, 'As Duas Torres', 464, 'Hardcover', '2014-07-17', 'HarperCollins', 'Portuguese', 'https://example.com/towers.jpg', 'Segundo volume da trilogia', '9780007487332', 'B008HZ6KXJ', 3),
+    (4, 'As Duas Torres', 464, 'Ebook', '2014-07-17', 'HarperCollins', 'Portuguese', 'https://example.com/towers.jpg', 'Segundo volume da trilogia', '9780007487332', 'B008HZ6KXJ', 3),
     (5, 'O Retorno do Rei', 496, 'Hardcover', '2014-08-14', 'HarperCollins', 'Portuguese', 'https://example.com/return.jpg', 'Terceiro volume da trilogia', '9780007487349', 'B008HZ6KXK', 4),
     (6, 'A Guerra dos Tronos', 694, 'Hardcover', '2011-07-12', 'Bantam Books', 'English', 'https://example.com/got.jpg', 'Primeiro livro da série', '9780553103540', 'B004JN1D40', 5),
-    (7, 'A Fúria dos Reis', 768, 'Hardcover', '2011-10-31', 'Bantam Books', 'English', 'https://example.com/cok.jpg', 'Segundo livro da série', '9780553108033', 'B004JN1D41', 6),
-    (8, 'A Tormenta de Espadas', 992, 'Hardcover', '2011-10-31', 'Bantam Books', 'English', 'https://example.com/sos.jpg', 'Terceiro livro da série', '9780553106633', 'B004JN1D42', 7),
+    (7, 'A Fúria dos Reis', 768, 'Audiobook', '2011-10-31', 'Bantam Books', 'English', 'https://example.com/cok.jpg', 'Segundo livro da série', '9780553108033', 'B004JN1D41', 6),
+    (8, 'A Tormenta de Espadas', 992, 'Mass Market Paperback', '2011-10-31', 'Bantam Books', 'English', 'https://example.com/sos.jpg', 'Terceiro livro da série', '9780553106633', 'B004JN1D42', 7),
     (9, 'Assassinato no Expresso do Oriente', 256, 'Paperback', '2017-01-01', 'HarperCollins', 'Portuguese', 'https://example.com/orient.jpg', 'Um dos mais famosos casos de Poirot', '9780008196526', 'B01N5IB20Q', 8),
     (10, 'Orgulho e Preconceito', 432, 'Hardcover', '2014-01-01', 'Penguin Classics', 'English', 'https://example.com/pride.jpg', 'Clássico romance de Jane Austen', '9780141439518', 'B00F8J5IDQ', 9),
     (11, 'Fundação', 255, 'Paperback', '2004-06-01', 'Spectra', 'English', 'https://example.com/foundation.jpg', 'Primeiro livro da série Fundação', '9780553293357', 'B000FC0SXA', 10),
-    (12, 'Fundação e Império', 247, 'Paperback', '2004-06-01', 'Spectra', 'English', 'https://example.com/foundation-empire.jpg', 'Segundo livro da série Fundação', '9780553293371', 'B000FC0SXB', 11),
-    (13, 'Segunda Fundação', 256, 'Paperback', '2004-06-01', 'Spectra', 'English', 'https://example.com/second-foundation.jpg', 'Terceiro livro da série Fundação', '9780553293364', 'B000FC0SXC', 12),
-    (14, 'Breve História do Tempo', 256, 'Paperback', '1988-04-01', 'Bantam Books', 'English', 'https://example.com/brief-history.jpg', 'Do Big Bang aos Buracos Negros', '9780553053404', 'B000FC0SXD', 13);
+    (12, 'Fundação e Império', 247, 'Ebook', '2004-06-01', 'Spectra', 'English', 'https://example.com/foundation-empire.jpg', 'Segundo livro da série Fundação', '9780553293371', 'B000FC0SXB', 11),
+    (13, 'Segunda Fundação', 256, 'Mass Market Paperback', '2004-06-01', 'Spectra', 'English', 'https://example.com/second-foundation.jpg', 'Terceiro livro da série Fundação', '9780553293364', 'B000FC0SXC', 12),
+    (14, 'Breve História do Tempo', 256, 'Audiobook', '1988-04-01', 'Bantam Books', 'English', 'https://example.com/brief-history.jpg', 'Do Big Bang aos Buracos Negros', '9780553053404', 'B000FC0SXD', 13);
 
 INSERT INTO users (id, email, password, first_name, last_name, picture_url) VALUES
     (1, 'joao.silva@email.com', 'senha123', 'João', 'Silva', 'https://example.com/joao.jpg'),
@@ -229,11 +230,6 @@ INSERT INTO trackings (edition_id, user_id, status, progress, rating, review, re
     (2, 8, 'read', 100, 5, 'Fantástico!', '[2024-03-01,2024-04-01)'),
     (3, 8, 'read', 100, 5, 'Excelente!', '[2024-05-01,2024-06-01)'),
     
-    -- Leituras atuais
-    (4, 1, 'currently-reading', 50, NULL, NULL, '[2025-01-01,)'),
-    (5, 4, 'currently-reading', 75, NULL, NULL, '[2025-01-15,)'),
-    (6, 4, 'currently-reading', 25, NULL, NULL, '[2025-02-01,)'),
-    
     -- Leituras recentes
     (7, 4, 'read', 100, 5, 'Excelente!', '[2025-01-01,2025-01-31)'),
     (8, 6, 'read', 100, 4, 'Bom mistério', '[2025-01-15,2025-02-15)'),
@@ -271,9 +267,9 @@ INSERT INTO moderations (user_id, group_id) VALUES
     (7, 3);   -- Roberto modera Clube de Sci-Fi
 
 INSERT INTO currently_readings (edition_id, group_id, start_date, finish_date) VALUES
-    (1, 1, '2025-01-01', NULL),    -- Clube de Fantasia lendo O Hobbit
-    (8, 2, '2025-01-15', NULL),    -- Clube de Mistério lendo Assassinato no Expresso do Oriente
-    (10, 3, '2025-02-01', NULL);   -- Clube de Sci-Fi lendo Fundação
+    (2, 1, '2025-01-01', NULL),    -- Clube de Fantasia lendo O Hobbit (edição paperback)
+    (9, 2, '2025-01-15', NULL),    -- Clube de Mistério lendo Orgulho e Preconceito
+    (11, 3, '2025-02-01', NULL);   -- Clube de Sci-Fi lendo Fundação e Império
 
 INSERT INTO list_entries (id, vote_count, list_id, edition_id) VALUES
     (1, 5, 1, 1),   -- O Hobbit na lista de fantasia
@@ -305,21 +301,3 @@ INSERT INTO votes (user_id, list_entry_id) VALUES
     (5, 6),   -- Carlos votou em Assassinato no Expresso do Oriente
     (6, 6),   -- Lúcia votou em Assassinato no Expresso do Oriente
     (7, 6);   -- Roberto votou em Assassinato no Expresso do Oriente
-
-INSERT INTO friendships (user_id, friend_id) VALUES
-    (1, 2),   -- João é amigo de Maria
-    (1, 3),   -- João é amigo de Pedro
-    (2, 1),   -- Maria é amiga de João
-    (2, 4),   -- Maria é amiga de Ana
-    (3, 1),   -- Pedro é amigo de João
-    (3, 5),   -- Pedro é amigo de Carlos
-    (4, 2),   -- Ana é amiga de Maria
-    (4, 6),   -- Ana é amiga de Lúcia
-    (5, 3),   -- Carlos é amigo de Pedro
-    (5, 7),   -- Carlos é amigo de Roberto
-    (6, 4),   -- Lúcia é amiga de Ana
-    (6, 8),   -- Lúcia é amiga de Julia
-    (7, 5),   -- Roberto é amigo de Carlos
-    (7, 8),   -- Roberto é amigo de Julia
-    (8, 6),   -- Julia é amiga de Lúcia
-    (8, 7);   -- Julia é amiga de Roberto
