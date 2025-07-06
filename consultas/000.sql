@@ -1,4 +1,4 @@
--- Consulta: Autores de sci-fi com nota maior que 4
+-- Consulta: Autores de um gênero literário com nota maior que a especificada
 SELECT DISTINCT a.*
 FROM authors a
 JOIN authorships au ON a.id = au.author_id

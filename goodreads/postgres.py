@@ -14,7 +14,7 @@ def connect(commands=None, query_params=None):
         conn = psycopg2.connect(**params)
 
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            print('Versão do PortgreSQL:')
+            print('Versão do PostgreSQL:')
             cur.execute("SELECT version();")
 
             db_version = cur.fetchone()
