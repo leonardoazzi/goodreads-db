@@ -5,7 +5,7 @@ from psycopg2.extras import RealDictCursor
 def connect(commands=None, query_params=None):
     """Conecta com o banco de dados PostgreSQL"""
     conn = None
-    record = None
+    record = []
     try:
         # Lê os parâmetros de configuração em database.ini
         params = config()

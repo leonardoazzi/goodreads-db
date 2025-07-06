@@ -1,10 +1,15 @@
 import os
+
 from flask import Flask, render_template, request
+from flask_cors import CORS
+
 from .postgres import connect
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 goodreads = Flask(__name__, template_folder='templates')
+goodreads.json.sort_keys = False
+CORS(goodreads, resources={r"/*": {"origins": "http://localhost:5173"}})
 
 @goodreads.route('/')
 def create_database():
