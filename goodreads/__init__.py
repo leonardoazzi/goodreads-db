@@ -1,5 +1,8 @@
+import os
 from flask import Flask, render_template, request
-import postgres
+from . import postgres
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 goodreads = Flask(__name__, template_folder='templates')
 
@@ -11,60 +14,56 @@ def create_database():
         str: Renderiza o template index.html
     """    
     try:
-        with open('../ddl.sql', 'r') as f:
+        ddl_path = os.path.join(BASE_DIR, '..', 'ddl.sql')
+        with open(ddl_path, 'r') as f:
             ddl_commands = f.read()
             postgres.connect(ddl_commands)
-        with open('../instancias.sql', 'r') as f:
+        instancias_path = os.path.join(BASE_DIR, '..', 'instancias.sql')
+        with open(instancias_path, 'r') as f:
             instances = f.read()
             postgres.connect(instances)
+        visao_path = os.path.join(BASE_DIR, '..', 'consultas', 'view.sql')
+        with open(visao_path, 'r') as f:
+            visao = f.read()
+            try:
+                postgres.connect(visao)
+            except Exception as e:
+                exception_msg = f"Error: {e}"
+                result = (exception_msg, 500)
     except Exception as e:
         print(f"Error creating database or tables: {e}")
 
     # Renderiza o template index.html
     return render_template('index.html')
 
-@goodreads.post('/api/v1/POST/query')
-def sql():
-    """Executa uma consulta SQL fornecida pelo usuário
+@goodreads.post('/api/v1/POST/consultas')
+def consultas():
+    """Executa as consultas da etapa 2
 
     Returns:
         tuple[str, int]: Retorna uma tupla com uma resposta e um código de retorno HTTP.
-    """    
+    """
+    query_id = request.args.get('query_id')
+
     content_type = request.headers.get('Content-Type')
     if content_type == 'application/json':
-        json = request.json
-        try:
-            query_result = postgres.connect(json["query"])
-            result = (query_result, 200)
-        except Exception as e:
-            exception_msg = f"Error: {e}"
-            result = (exception_msg, 500)
+        query_params = request.json
     else:
-        result = ("No result", 501)
+        query_params = None
     
-    return result
-
-@goodreads.post('/api/v1/POST/select-author')
-def get_author():
-    """Obtém informações de um autor específico.
-
-    Returns:
-        tuple[str, int]: Retorna uma tupla com uma resposta e um código de retorno HTTP.
-    """    
-    content_type = request.headers.get('Content-Type')
-    if content_type == 'application/json':
-        json = request.json
-        params = json['author_name']
-        sql_query = f"SELECT * FROM authors WHERE name = (%s)"
-        try:
-            query_result = postgres.connect(sql_query, [params])
-            result = (query_result, 200)
-        except Exception as e:
-            result = ({"Error": str(e)}, 500)
-    else:
-        result = ("No result", 501)
+    try:
+        print(query_params)
+        consulta_path = os.path.join(BASE_DIR, '..', 'consultas', f'{query_id}.sql')
+        with open(consulta_path, 'r') as f:
+            consultas = f.read()
+            try:
+                query_result = postgres.connect(consultas, query_params)
+                result = (query_result, 200)
+            except Exception as e:
+                exception_msg = f"Error: {e}"
+                result = (exception_msg, 500)
+    except Exception as e:
+        exception_msg = f"Error: {e}"
+        result = (exception_msg, 501)
 
     return result
-
-if __name__ == '__main__':
-    goodreads.run(debug=True)  # Executa o servidor Flask em modo de depuração

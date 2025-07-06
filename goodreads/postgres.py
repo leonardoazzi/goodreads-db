@@ -1,5 +1,5 @@
 import psycopg2
-from config import config
+from . import config
 from psycopg2.extras import RealDictCursor
 
 def connect(commands=None, query_params=None):

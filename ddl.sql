@@ -42,7 +42,7 @@ CREATE TABLE works (
 	id SERIAL PRIMARY KEY,
 	title VARCHAR(100) NOT NULL,
 	first_publication_date DATE NOT NULL,
-	rating NUMERIC(2) CHECK (
+	rating NUMERIC(2,1) CHECK (
 		rating BETWEEN 1 AND 5
 	)
 );
