@@ -3,7 +3,7 @@ import postgres
 
 goodreads = Flask(__name__, template_folder='templates')
 
-@goodreads.route('/') # Decorador que define qual rota de URL chama a função abaixo
+@goodreads.route('/')
 def create_database():
     """ Cria o banco de dados e as tabelas necessárias, e renderiza o template index.html """
     try:
@@ -19,30 +19,34 @@ def create_database():
     # Renderiza o template index.html
     return render_template('index.html')
 
-@goodreads.post('/sql/POST/query')
+@goodreads.post('/api/v1/POST/query')
 def sql():
     """ Executa uma consulta SQL fornecida pelo usuário """
-    result = None
-    sql_query = request.form.get('sql')
-    if sql_query:
+    result = (None, 501)
+    content_type = request.headers.get('Content-Type')
+    if content_type == 'application/json':
+        json = request.json
         try:
-            result = postgres.connect(sql_query)
+            query_result = postgres.connect(json["query"])
+            result = (query_result, 200)
         except Exception as e:
-            result = f"Error: {e}"
-    return render_template('index.html', result=result) # TODO: mudar pra jsonfy quando fizer o front.
+            exception_msg = f"Error: {e}"
+            result = (exception_msg, 500)
+    return result
 
-@goodreads.post('/sql/POST/select-author')
+@goodreads.post('/api/v1/POST/select-author')
 def get_author():
     """ Obtém informações de um autor específico """
-    result = None
-    author_name = request.form.get('select-author')
-    sql_query = f"SELECT * FROM authors WHERE name = '{author_name}'"
-    if sql_query:
+    result = (None, 501)
+    content_type = request.headers.get('Content-Type')
+    if content_type == 'application/json':
+        json = request.json
+        sql_query = f"SELECT * FROM authors WHERE name = '{json['author_name']}'"
         try:
             result = postgres.connect(sql_query)
         except Exception as e:
             result = f"Error: {e}"
-    return render_template('index.html', result=result) # TODO: mudar pra jsonfy quando fizer o front.
+    return result, 200
 
 if __name__ == '__main__':
     goodreads.run(debug=True)  # Executa o servidor Flask em modo de depuração
