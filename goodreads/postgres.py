@@ -1,14 +1,6 @@
 import psycopg2
 from config import config
-
-# # Connect to the School database
-# conn = psycopg2.connect(
-#     dbname="prova_antiga",
-#     user="postgres",
-#     host="localhost",
-#     port="5432",
-#     password="postgres"
-# )
+from psycopg2.extras import RealDictCursor
 
 def connect(commands=None):
     """ Conecta com o banco de dados PostgreSQL """
@@ -21,17 +13,18 @@ def connect(commands=None):
         print('Conectando ao PostgreSQL...')
         conn = psycopg2.connect(**params)
 
-        cur = conn.cursor()
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            print('Versão do PortgreSQL:')
+            cur.execute("SELECT version();")
 
-        print('Versão do PortgreSQL:')
-        cur.execute("SELECT version();")
-        db_version = cur.fetchone()
-        print(db_version)
+            db_version = cur.fetchone()
+            print(db_version)
 
-        cur.execute(commands)
-        print(f'Executando comando: {commands}')
-        record = cur.fetchone()
-        print(f'Resultado: {record}')
+            cur.execute(commands)
+            print(f'Executando comando: {commands}')
+
+            record = cur.fetchall()
+            print(f'Resultado: {record}')
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     finally:
