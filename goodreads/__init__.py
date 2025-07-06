@@ -52,7 +52,6 @@ def consultas():
         query_params = None
     
     try:
-        print(query_params)
         consulta_path = os.path.join(BASE_DIR, '..', 'consultas', f'{query_id}.sql')
         with open(consulta_path, 'r') as f:
             consultas = f.read()
