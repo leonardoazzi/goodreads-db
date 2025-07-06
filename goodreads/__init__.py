@@ -41,12 +41,14 @@ def get_author():
     content_type = request.headers.get('Content-Type')
     if content_type == 'application/json':
         json = request.json
-        sql_query = f"SELECT * FROM authors WHERE name = '{json['author_name']}'"
+        params = json['author_name']
+        sql_query = f"SELECT * FROM authors WHERE name = (%s)"
         try:
-            result = postgres.connect(sql_query)
+            query_result = postgres.connect(sql_query, [params])
+            result = (query_result, 200)
         except Exception as e:
-            result = f"Error: {e}"
-    return result, 200
+            result = ({"Error": str(e)}, 500)
+    return result
 
 if __name__ == '__main__':
     goodreads.run(debug=True)  # Executa o servidor Flask em modo de depuração
