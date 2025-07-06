@@ -2,8 +2,8 @@ import psycopg2
 from config import config
 from psycopg2.extras import RealDictCursor
 
-def connect(commands=None):
-    """ Conecta com o banco de dados PostgreSQL """
+def connect(commands=None, query_params=None):
+    """Conecta com o banco de dados PostgreSQL"""
     conn = None
     record = None
     try:
@@ -20,11 +20,12 @@ def connect(commands=None):
             db_version = cur.fetchone()
             print(db_version)
 
-            cur.execute(commands)
-            print(f'Executando comando: {commands}')
+            if commands:
+                cur.execute(commands, query_params)
+                print(f'Executando comando: {commands}, {query_params}')
+                record = cur.fetchall()
+                print(f'Resultado: {record}')
 
-            record = cur.fetchall()
-            print(f'Resultado: {record}')
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
     finally:
