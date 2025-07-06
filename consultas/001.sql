@@ -7,7 +7,7 @@ SELECT bd.work_title,
 	bd.page_count,
 	bd.publisher,
 	COUNT(t.edition_id) as total_readings,
-	AVG(t.rating) as avg_user_rating
+	ROUND(AVG(t.rating), 2) as avg_user_rating
 FROM book_details bd
 	LEFT JOIN trackings t ON bd.edition_id = t.edition_id
 	LEFT JOIN users u ON t.user_id = u.id

@@ -13,7 +13,7 @@ FROM users u
 				FROM UPPER(t.reading_period)
 			) as reading_year,
 			COUNT(*) as books_read,
-			AVG(t.rating) as avg_rating,
+			ROUND(AVG(t.rating), 2) as avg_rating,
 			SUM(e.page_count) as total_pages
 		FROM trackings t
 			JOIN editions e ON t.edition_id = e.id

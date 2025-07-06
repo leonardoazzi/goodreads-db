@@ -6,7 +6,7 @@ SELECT g.name as group_name,
 	cr.start_date as reading_start_date,
 	COUNT(m.user_id) as total_members,
 	COUNT(DISTINCT mod.user_id) as total_moderators,
-	AVG(t.progress) as avg_member_progress,
+	ROUND(AVG(t.progress), 2) as avg_member_progress,
 	COUNT(
 		CASE
 			WHEN t.status = 'currently-reading' THEN 1

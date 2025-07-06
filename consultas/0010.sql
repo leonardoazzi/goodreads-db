@@ -2,7 +2,7 @@
 SELECT u.first_name,
 	u.last_name,
 	COUNT(DISTINCT t.edition_id) as total_books_read,
-	AVG(t.rating) as avg_rating,
+	ROUND(AVG(t.rating), 2) as avg_rating,
 	SUM(e.page_count) as total_pages_read,
 	COUNT(DISTINCT g.id) as genres_explored,
 	MAX(UPPER(t.reading_period)) as last_book_finished,

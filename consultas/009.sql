@@ -2,7 +2,7 @@
 SELECT e.format,
 	COUNT(DISTINCT t.user_id) as unique_readers,
 	COUNT(*) as total_trackings,
-	AVG(t.progress) as avg_progress
+	ROUND(AVG(t.progress), 2) as avg_progress
 FROM trackings t
 	JOIN editions e ON t.edition_id = e.id
 	JOIN users u ON t.user_id = u.id
