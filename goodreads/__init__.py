@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request
-from . import postgres
+from .postgres import connect
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -17,19 +17,18 @@ def create_database():
         ddl_path = os.path.join(BASE_DIR, '..', 'ddl.sql')
         with open(ddl_path, 'r') as f:
             ddl_commands = f.read()
-            postgres.connect(ddl_commands)
+            connect(ddl_commands)
         instancias_path = os.path.join(BASE_DIR, '..', 'instancias.sql')
         with open(instancias_path, 'r') as f:
             instances = f.read()
-            postgres.connect(instances)
+            connect(instances)
         visao_path = os.path.join(BASE_DIR, '..', 'consultas', 'view.sql')
         with open(visao_path, 'r') as f:
             visao = f.read()
             try:
-                postgres.connect(visao)
+                connect(visao)
             except Exception as e:
-                exception_msg = f"Error: {e}"
-                result = (exception_msg, 500)
+                print(f"Error: {e}")
     except Exception as e:
         print(f"Error creating database or tables: {e}")
 
@@ -56,7 +55,7 @@ def consultas():
         with open(consulta_path, 'r') as f:
             consultas = f.read()
             try:
-                query_result = postgres.connect(consultas, query_params)
+                query_result = connect(consultas, query_params)
                 result = (query_result, 200)
             except Exception as e:
                 exception_msg = f"Error: {e}"
@@ -65,4 +64,25 @@ def consultas():
         exception_msg = f"Error: {e}"
         result = (exception_msg, 501)
 
+    return result
+
+@goodreads.post('/api/v1/POST/query')
+def sql():
+    """Executa uma consulta SQL fornecida pelo usuário
+
+    Returns:
+        tuple[str, int]: Retorna uma tupla com uma resposta e um código de retorno HTTP.
+    """    
+    content_type = request.headers.get('Content-Type')
+    if content_type == 'application/json':
+        json = request.json
+        try:
+            query_result = postgres.connect(json["query"])
+            result = (query_result, 200)
+        except Exception as e:
+            exception_msg = f"Error: {e}"
+            result = (exception_msg, 500)
+    else:
+        result = ("No result", 501)
+    
     return result

@@ -1,11 +1,12 @@
 from configparser import ConfigParser
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath('database.ini')))
+BASE_DIR = os.path.dirname(os.path.abspath('database.ini'))
 
 def config(filename=BASE_DIR+'/goodreads/database.ini', section='postgresql'):
     parser = ConfigParser()
     parser.read(filename)
+    print(filename)
 
     db = {}
     if parser.has_section(section):
