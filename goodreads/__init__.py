@@ -5,7 +5,11 @@ goodreads = Flask(__name__, template_folder='templates')
 
 @goodreads.route('/')
 def create_database():
-    """ Cria o banco de dados e as tabelas necessárias, e renderiza o template index.html """
+    """Cria o banco de dados e as tabelas necessária,
+
+    Returns:
+        str: Renderiza o template index.html
+    """    
     try:
         with open('../ddl.sql', 'r') as f:
             ddl_commands = f.read()
@@ -21,8 +25,11 @@ def create_database():
 
 @goodreads.post('/api/v1/POST/query')
 def sql():
-    """ Executa uma consulta SQL fornecida pelo usuário """
-    result = (None, 501)
+    """Executa uma consulta SQL fornecida pelo usuário
+
+    Returns:
+        tuple[str, int]: Retorna uma tupla com uma resposta e um código de retorno HTTP.
+    """    
     content_type = request.headers.get('Content-Type')
     if content_type == 'application/json':
         json = request.json
@@ -32,12 +39,18 @@ def sql():
         except Exception as e:
             exception_msg = f"Error: {e}"
             result = (exception_msg, 500)
+    else:
+        result = ("No result", 501)
+    
     return result
 
 @goodreads.post('/api/v1/POST/select-author')
 def get_author():
-    """ Obtém informações de um autor específico """
-    result = (None, 501)
+    """Obtém informações de um autor específico.
+
+    Returns:
+        tuple[str, int]: Retorna uma tupla com uma resposta e um código de retorno HTTP.
+    """    
     content_type = request.headers.get('Content-Type')
     if content_type == 'application/json':
         json = request.json
@@ -48,6 +61,9 @@ def get_author():
             result = (query_result, 200)
         except Exception as e:
             result = ({"Error": str(e)}, 500)
+    else:
+        result = ("No result", 501)
+
     return result
 
 if __name__ == '__main__':
