@@ -1,11 +1,11 @@
 import psycopg2
-from config import config
+from .config import config
 from psycopg2.extras import RealDictCursor
 
 def connect(commands=None, query_params=None):
     """Conecta com o banco de dados PostgreSQL"""
     conn = None
-    record = None
+    record = []
     try:
         # Lê os parâmetros de configuração em database.ini
         params = config()
@@ -14,7 +14,7 @@ def connect(commands=None, query_params=None):
         conn = psycopg2.connect(**params)
 
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            print('Versão do PortgreSQL:')
+            print('Versão do PostgreSQL:')
             cur.execute("SELECT version();")
 
             db_version = cur.fetchone()
